@@ -19,7 +19,7 @@ globals.old_coins = load_old_coins()
 logger.debug(f"old_coins: {globals.old_coins}")
 
 # loads local configuration
-config = load_config('config.yml')
+config = load_config('src/config.yml')
 
 # load necessary files
 if os.path.isfile('sold.json'):
@@ -252,7 +252,7 @@ def sell():
 
                 if float(order[coin]['_tp']) == 0:
                     st = order[coin]['_status']
-                    logger.Info(f"Order is initialized but not ready. Continuing. | Status={st}")
+                    logger.info(f"Order is initialized but not ready. Continuing. | Status={st}")
                     continue
 
                 # store some necessary trade info for a sell
@@ -352,7 +352,7 @@ def sell():
 
                                 # keep going.  Not finished until status is 'closed'
                                 continue
-                            
+
                         logger.info(
                             f'sold {coin} with {round((float(last_price) - stored_price) * float(volume), 3)} profit | {round((float(last_price) - stored_price) / float(stored_price)*100, 3)}% PNL',
                             extra={'TELEGRAM':  'SELL_FILLED'})
