@@ -1,7 +1,7 @@
 from datetime import datetime
 from logger import logger
 
-from src.exchange.gateio import *
+from exchange.gateio import *
 from gate_api import ApiClient, Order, SpotApi
 import globals
 

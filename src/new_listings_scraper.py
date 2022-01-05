@@ -10,7 +10,7 @@ import globals
 
 import requests
 
-from src.exchange.gateio import *
+from exchange.gateio import *
 from logger import logger
 from store_order import *
 from load_config import *
