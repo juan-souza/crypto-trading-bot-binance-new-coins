@@ -1,0 +1,12 @@
+---
+version: '3'
+services:
+  binance_bot:
+    build:
+       context: .
+    container_name: binance_bot
+    volumes:
+      - .:/usr/src/app
+    # Default command used when running `docker compose up`
+    command:
+      python3 main.py --log-dir "/user_data/logs/" --config "user_data/config.yml" --auth-file "/user_data/auth.yml"

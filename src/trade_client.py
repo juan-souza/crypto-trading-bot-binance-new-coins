@@ -1,10 +1,11 @@
 from datetime import datetime
 from logger import logger
 
-from auth.gateio_auth import *
+from src.exchange.gateio import *
 from gate_api import ApiClient, Order, SpotApi
+import globals
 
-client = load_gateio_creds('src/auth/auth.yml')
+client = load_gateio_creds(globals.auth_file_path)
 spot_api = SpotApi(ApiClient(client))
 
 last_trade = None

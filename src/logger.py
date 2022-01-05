@@ -5,14 +5,14 @@ from send_telegram import *
 from logging.handlers import TimedRotatingFileHandler
 
 # loads local configuration
-config = load_config('src/config.yml')
+config = load_config(globals.config_file_path)
 
 log = logging
 
 # Set default log settings
 log_level = 'INFO'
 cwd = os.getcwd()
-log_dir = "logs"
+log_dir = globals.log_dir
 log_file = 'bot.log'
 log_to_console = True
 log_path = os.path.join(cwd, log_dir, log_file)

@@ -2,7 +2,6 @@ import ast
 import os.path
 import os
 import random
-import re
 import string
 import time
 import re
@@ -10,15 +9,14 @@ import re
 import globals
 
 import requests
-from gate_api import ApiClient, SpotApi
 
-from auth.gateio_auth import *
+from src.exchange.gateio import *
 from logger import logger
 from store_order import *
 from load_config import *
 
-config = load_config('src/config.yml')
-client = load_gateio_creds('src/auth/auth.yml')
+config = load_config(globals.config_file_path)
+client = load_gateio_creds(globals.auth_file_path)
 spot_api = SpotApi(ApiClient(client))
 
 global supported_currencies
@@ -149,11 +147,11 @@ def search_and_update():
             latest_coin = get_last_coin()
             if latest_coin:
                 store_new_listing(latest_coin)
-            elif globals.test_mode and os.path.isfile('test_new_listing.json'):
-                store_new_listing(load_order('test_new_listing.json'))
-                if os.path.isfile('test_new_listing.json.used'):
-                    os.remove('test_new_listing.json.used')
-                os.rename('test_new_listing.json', 'test_new_listing.json.used')
+            elif globals.test_mode and os.path.isfile(globals.test_new_listing_file_name):
+                store_new_listing(load_order(globals.test_new_listing_file_name))
+                if os.path.isfile(globals.test_new_listing_used_file_name):
+                    os.remove(globals.test_new_listing_used_file_name)
+                os.rename(globals.test_new_listing_file_name, globals.test_new_listing_used_file_name)
             logger.info(f"Checking for coin announcements every {str(sleep_time)} seconds (in a separate thread)")
         except Exception as e:
             logger.info(e)
@@ -171,9 +169,9 @@ def get_all_currencies(single=False):
         logger.info("Getting the list of supported currencies from gate io")
         all_currencies = ast.literal_eval(str(spot_api.list_currencies()))
         currency_list = [currency['currency'] for currency in all_currencies]
-        with open('currencies.json', 'w') as f:
+        with open(globals.currencies_file_name, 'w') as f:
             json.dump(currency_list, f, indent=4)
-            logger.info("List of gate io currencies saved to currencies.json. Waiting 5 "
+            logger.info(f"List of gate io currencies saved to {globals.currencies_file_name}. Waiting 5 "
                         "minutes before refreshing list...")
         supported_currencies = currency_list
         if single:
@@ -188,8 +186,8 @@ def get_all_currencies(single=False):
 
 
 def load_old_coins():
-    if os.path.isfile('old_coins.json'):
-        with open('old_coins.json') as json_file:
+    if os.path.isfile(globals.old_coins_file_name):
+        with open(globals.old_coins_file_name) as json_file:
             data = json.load(json_file)
             logger.debug("Loaded old_coins from file")
             return data
@@ -198,6 +196,6 @@ def load_old_coins():
 
 
 def store_old_coins(old_coin_list):
-    with open('old_coins.json', 'w') as f:
+    with open(globals.old_coins_file_name, 'w') as f:
         json.dump(old_coin_list, f, indent=2)
         logger.debug('Wrote old_coins to file')
