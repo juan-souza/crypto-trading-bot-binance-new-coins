@@ -1,10 +1,10 @@
-import args
 import globals
 from trade_client import *
 from store_order import *
 from logger import logger
 from load_config import *
 from new_listings_scraper import *
+from pathlib import Path
 
 from collections import defaultdict
 from datetime import datetime, time
@@ -15,9 +15,6 @@ import json
 from json import JSONEncoder
 import os.path
 import sys, os
-
-# Load arguments
-args.load_args()
 
 # To add a coin to ignore, add it to the json array in globals.old_coins
 globals.old_coins = load_old_coins()
@@ -464,6 +461,11 @@ def main():
         t_get_currencies_thread.join()
         t_buy_thread.join()
         t_sell_thread.join()
+
+
+def __init__(self, datadir: Path) -> None:
+    self._datadir = datadir
+    print(Path.iterdir())
 
 
 if __name__ == '__main__':

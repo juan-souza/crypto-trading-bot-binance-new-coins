@@ -1,5 +1,7 @@
 import os
 import threading
+import pathlib
+import args
 
 buy_ready = threading.Event()
 sell_ready = threading.Event()
@@ -7,11 +9,13 @@ stop_threads = False
 old_coins = {}
 latest_listing = ""
 
-# Files path
-user_data_dir = os.path.abspath("../user_data")
-log_dir = f"{user_data_dir}/logs"
-config_file_path = f"{user_data_dir}/config.yml"
-auth_file_path = f"{user_data_dir}/auth.yml"
+user_data_dir = ""
+log_dir = ""
+config_file_path = ""
+auth_file_path = ""
+
+# Load Files path
+args.load_args()
 
 # Files name
 currencies_file_name = f"{user_data_dir}/currencies.json"

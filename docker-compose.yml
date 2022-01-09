@@ -1,12 +1,13 @@
 ---
 version: '3'
 services:
-  binance_bot:
+  binance_new_coins:
+    image: jccs/binance_new_coins:develop
     build:
        context: .
-    container_name: binance_bot
+    container_name: binance_new_coins
     volumes:
-      - .:/usr/src/app
+      -  "./user_data:/binance_new_coins/user_data"
     # Default command used when running `docker compose up`
     command:
-      python3 main.py --log-dir "/user_data/logs/" --config "user_data/config.yml" --auth-file "/user_data/auth.yml"
+      python3 main.py --user-data-dir "/binance_new_coins/user_data"
