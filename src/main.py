@@ -1,9 +1,11 @@
+import globals
 from trade_client import *
 from store_order import *
 from logger import logger
 from load_config import *
 from new_listings_scraper import *
-import globals
+from pathlib import Path
+
 from collections import defaultdict
 from datetime import datetime, time
 import time
@@ -14,32 +16,32 @@ from json import JSONEncoder
 import os.path
 import sys, os
 
-# To add a coin to ignore, add it to the json array in old_coins.json
+# To add a coin to ignore, add it to the json array in globals.old_coins
 globals.old_coins = load_old_coins()
 logger.debug(f"old_coins: {globals.old_coins}")
 
 # loads local configuration
-config = load_config('config.yml')
+config = load_config(globals.config_file_path)
 
 # load necessary files
-if os.path.isfile('sold.json'):
-    sold_coins = load_order('sold.json')
+if os.path.isfile(globals.sold_file_name):
+    sold_coins = load_order(globals.sold_file_name)
 else:
     sold_coins = {}
 
-if os.path.isfile('order.json'):
-    order = load_order('order.json')
+if os.path.isfile(globals.order_file_name):
+    order = load_order(globals.order_file_name)
 else:
     order = {}
 
 # memory store for all orders for a specific coin
-if os.path.isfile('session.json'):
-    session = load_order('session.json')
+if os.path.isfile(globals.session_file_name):
+    session = load_order(globals.session_file_name)
 else:
     session = {}
 
 # Keep the supported currencies loaded in RAM so no time is wasted fetching
-# currencies.json from disk when an announcement is made
+# {globals.currencies_file_name} from disk when an announcement is made
 global supported_currencies
 
 
@@ -193,8 +195,8 @@ def buy():
                             order[announcement_coin]['_fee'] = f'{tf}'
                             order[announcement_coin]['_amount'] = f'{ta}'
 
-                            store_order('order.json', order)
-                            store_order('session.json', session)
+                            store_order(globals.order_file_name, order)
+                            store_order(globals.session_file_name, session)
 
                             # We're done. Stop buying and finish up the selling.
                             globals.sell_ready.set()
@@ -228,7 +230,7 @@ def buy():
                     logger.warning(
                         f'{announcement_coin=} is not supported on gate io',
                         extra={'TELEGRAM':  'COIN_NOT_SUPPORTED'})
-                    logger.info(f"Adding {announcement_coin} to old_coins.json")
+                    logger.info(f"Adding {announcement_coin} to {globals.old_coins_file_name}")
                     globals.old_coins.append(announcement_coin)
                     store_old_coins(globals.old_coins)
             else:
@@ -252,7 +254,7 @@ def sell():
 
                 if float(order[coin]['_tp']) == 0:
                     st = order[coin]['_status']
-                    logger.Info(f"Order is initialized but not ready. Continuing. | Status={st}")
+                    logger.info(f"Order is initialized but not ready. Continuing. | Status={st}")
                     continue
 
                 # store some necessary trade info for a sell
@@ -298,7 +300,7 @@ def sell():
                     # new values to be added to the json file
                     order[coin]['_tp'] = new_tp
                     order[coin]['_sl'] = new_sl
-                    store_order('order.json', order)
+                    store_order(globals.order_file_name, order)
 
                     new_top_position_price = stored_price + (stored_price*new_tp /100)
                     new_stop_loss_price = stored_price + (stored_price*new_sl /100)
@@ -334,7 +336,7 @@ def sell():
                                     order[coin]['_amount'] = sell._left
                                     order[coin]['_fee'] = f'{fees - (float(sell._fee) / float(sell._price))}'
 
-                                    # add sell order sold.json (handled better in session.json now)
+                                    # add sell order globals.sold_file_name (handled better in globals.session_file_name now)
                                     id = f"{coin}_{id}"
                                     sold_coins[id] = sell
                                     sold_coins[id] = sell.__dict__
@@ -352,7 +354,7 @@ def sell():
 
                                 # keep going.  Not finished until status is 'closed'
                                 continue
-                            
+
                         logger.info(
                             f'sold {coin} with {round((float(last_price) - stored_price) * float(volume), 3)} profit | {round((float(last_price) - stored_price) / float(stored_price)*100, 3)}% PNL',
                             extra={'TELEGRAM':  'SELL_FILLED'})
@@ -360,8 +362,8 @@ def sell():
 
                         # remove order from json file
                         order.pop(coin)
-                        store_order('order.json', order)
-                        logger.debug('Order saved in order.json')
+                        store_order(globals.order_file_name, order)
+                        logger.debug(f'Order saved in {globals.order_file_name}]')
                         globals.sell_ready.clear()
 
                     except Exception as e:
@@ -402,14 +404,14 @@ def sell():
                             if len(session) > 0:
                                 dp = copy.deepcopy(sold_coins[coin])
                                 session[coin]['orders'].append(dp)
-                                store_order('session.json', session)
-                                logger.debug('Session saved in session.json')
+                                store_order(globals.session_file_name, session)
+                                logger.debug(f'Session saved in {globals.session_file_name}')
                         except Exception as e:
                             print(e)
                             pass
 
-                        store_order('sold.json', sold_coins)
-                        logger.info('Order saved in sold.json')
+                        store_order(globals.sold_file_name, sold_coins)
+                        logger.info('Order saved in []')
         else:
             logger.debug("Size of order is 0")
         time.sleep(3)
@@ -459,6 +461,11 @@ def main():
         t_get_currencies_thread.join()
         t_buy_thread.join()
         t_sell_thread.join()
+
+
+def __init__(self, datadir: Path) -> None:
+    self._datadir = datadir
+    print(Path.iterdir())
 
 
 if __name__ == '__main__':

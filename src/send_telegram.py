@@ -1,11 +1,12 @@
 import requests
 import logging
 import yaml
+import globals
 from load_config import *
 
-config = load_config('config.yml')
+config = load_config(globals.config_file_path)
 
-with open('auth/auth.yml') as file:
+with open(globals.auth_file_path) as file:
     try:
         creds = yaml.load(file, Loader=yaml.FullLoader)
         bot_token = creds['telegram_token']
