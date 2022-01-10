@@ -4,7 +4,6 @@ from store_order import *
 from logger import logger
 from load_config import *
 from new_listings_scraper import *
-from pathlib import Path
 
 from collections import defaultdict
 from datetime import datetime, time
@@ -461,11 +460,6 @@ def main():
         t_get_currencies_thread.join()
         t_buy_thread.join()
         t_sell_thread.join()
-
-
-def __init__(self, datadir: Path) -> None:
-    self._datadir = datadir
-    print(Path.iterdir())
 
 
 if __name__ == '__main__':
